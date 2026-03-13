@@ -28,9 +28,9 @@ const getStageColor = (stage: string) => {
 // Stage streaming links
 const stageStreamLinks: Record<string, string> = {
   "Cenco Malls Stage": "https://www.youtube.com/watch?v=mFgT15aay24",
-  "Banco de Chile Stage": "https://www.youtube.com/watch?v=emHcwuy_0Ng",
-  "Alternative Stage": "https://www.youtube.com/watch?v=Ze-33DRc0QY",
-  "Perry's Stage": "https://www.youtube.com/watch?v=hY137e88MJs",
+  "Banco de Chile Stage": "https://www.youtube.com/watch?v=bHbSQYrnAuo",
+  "Alternative Stage": "https://www.youtube.com/watch?v=IyUXoLEiaDw",
+  "Perry's Stage": "https://www.youtube.com/watch?v=CDwu-EPFLwA",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
 };
