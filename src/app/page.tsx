@@ -28,8 +28,8 @@ const getStageColor = (stage: string) => {
 // Stage streaming links
 const stageStreamLinks: Record<string, string> = {
   "Cenco Malls Stage": "https://www.youtube.com/watch?v=mFgT15aay24",
-  "Banco de Chile Stage": "https://www.youtube.com/watch?v=KtuOEaE49Lk",
-  "Alternative Stage": "https://www.youtube.com/watch?v=8WWMVC6SJiw",
+  "Banco de Chile Stage": "https://www.youtube.com/watch?v=emHcwuy_0Ng",
+  "Alternative Stage": "https://www.youtube.com/watch?v=Ze-33DRc0QY",
   "Perry's Stage": "https://www.youtube.com/watch?v=hY137e88MJs",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
@@ -122,6 +122,29 @@ export default function Home() {
 
     // Show is live from start time to end time
     return now >= showDate && now <= showEndDate;
+  };
+
+  // Check if a show has already ended (past artists)
+  const hasEnded = (day: string, time: string, endTime: string): boolean => {
+    const artistDay = days.find((d) => d.key === day);
+    if (!artistDay) return false;
+
+    // Handle times past midnight (e.g., 00:50)
+    let showEndDate = new Date(artistDay.date + "T" + endTime + ":00");
+    
+    // If end time is less than start time, it means it ends after midnight
+    if (endTime < time) {
+      showEndDate = new Date(showEndDate.getTime() + 24 * 60 * 60 * 1000);
+    }
+    
+    const now = new Date();
+
+    // Check if it's the same day
+    const todayStr = now.toISOString().split("T")[0];
+    if (artistDay.date !== todayStr) return false;
+
+    // Show has ended if current time is after end time
+    return now > showEndDate;
   };
 
   // Check if any show on a stage is currently live
@@ -294,19 +317,29 @@ export default function Home() {
                   key={show.id}
                   ref={(el) => { artistRefs.current[show.id] = el; }}
                   className={`bg-[#1a1a1a] border rounded-xl p-6 transition-colors ${
-                    isLive(show.day, show.time, show.endTime)
-                      ? "border-[#ff3d00] shadow-lg shadow-[#ff3d00]/30"
-                      : "border-[#333333] hover:border-[#ff3d00]"
+                    hasEnded(show.day, show.time, show.endTime)
+                      ? "border-[#333333] opacity-60"
+                      : isLive(show.day, show.time, show.endTime)
+                        ? "border-[#ff3d00] shadow-lg shadow-[#ff3d00]/30"
+                        : "border-[#333333] hover:border-[#ff3d00]"
                   }`}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <h3 className={`text-2xl font-display ${
-                      isLive(show.day, show.time, show.endTime) ? "text-[#ff3d00]" : "text-white"
+                      hasEnded(show.day, show.time, show.endTime)
+                        ? "text-[#666666]"
+                        : isLive(show.day, show.time, show.endTime)
+                          ? "text-[#ff3d00]"
+                          : "text-white"
                     }`}>
                       {show.name}
                     </h3>
                     <span className={`text-xl font-bold ${
-                      isLive(show.day, show.time, show.endTime) ? "text-[#ff3d00]" : "text-[#ffffff]"
+                      hasEnded(show.day, show.time, show.endTime)
+                        ? "text-[#666666]"
+                        : isLive(show.day, show.time, show.endTime)
+                          ? "text-[#ff3d00]"
+                          : "text-[#ffffff]"
                     }`}>
                       {show.time} - {show.endTime}
                     </span>
@@ -315,14 +348,20 @@ export default function Home() {
                     <span
                       className="px-3 py-1 rounded-full text-sm font-medium"
                       style={{
-                        backgroundColor: getStageColor(show.stage).bg,
-                        color: getStageColor(show.stage).text,
-                        border: `1px solid ${getStageColor(show.stage).border}`,
+                        backgroundColor: hasEnded(show.day, show.time, show.endTime) 
+                          ? "#333333" 
+                          : getStageColor(show.stage).bg,
+                        color: hasEnded(show.day, show.time, show.endTime) 
+                          ? "#666666" 
+                          : getStageColor(show.stage).text,
+                        border: `1px solid ${hasEnded(show.day, show.time, show.endTime) 
+                          ? "#333333" 
+                          : getStageColor(show.stage).border}`,
                       }}
                     >
                       {show.stage}
                     </span>
-                    {isStageLive(show.day, show.stage) && stageStreamLinks[show.stage] && (
+                    {isStageLive(show.day, show.stage) && stageStreamLinks[show.stage] && !hasEnded(show.day, show.time, show.endTime) && (
                         <button
                           onClick={() => setVideoModal({ stage: show.stage, url: stageStreamLinks[show.stage] })}
                           className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white hover:bg-[#cc0000] transition-colors"
@@ -373,16 +412,16 @@ export default function Home() {
       {/* Video Modal */}
       {videoModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={() => setVideoModal(null)}
         >
           <div 
-            className="relative w-[90vw] h-[90vh] max-w-6xl"
+            className="relative w-full max-w-5xl aspect-video"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setVideoModal(null)}
-              className="absolute -top-10 right-0 text-white hover:text-[#ff3d00] transition-colors"
+              className="absolute -top-12 right-0 text-white hover:text-[#ff3d00] transition-colors z-10"
             >
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -407,7 +446,7 @@ export default function Home() {
             es libre. No nos hacemos cargo de nada. Si el streaming no funciona, no es mi problema. Si los horarios cambian, trataré de tenerlo actualizado, pero no prometo nada.
           </p>
           <p className="text-xs text-[#999999] leading-relaxed mt-4">
-            Si a pesar de todo quieren contactarme, pueden hacerlo al mail <a href="mailto:lollacl2026.ebii8h@bumpmail.io" class="text-[#cccccc] underline">lollacl2026.ebii8h@bumpmail.io</a>.
+            Si a pesar de todo quieren contactarme, pueden hacerlo al mail <a href="mailto:lollacl2026.ebii8h@bumpmail.io" className="text-[#cccccc] underline">lollacl2026.ebii8h@bumpmail.io</a>.
           </p>
           <p className="text-sm text-[#ff3d00] mt-4 leading-tight">
             Disfruten de la vida y la musica y no se olviden de salir a bailar o hacer un mosh aunque sea un rato, aunque sea con amigos, aunque sea con desconocidos, aunque sea solos.
