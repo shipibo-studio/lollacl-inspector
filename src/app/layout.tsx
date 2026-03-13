@@ -47,6 +47,9 @@ export const metadata: Metadata = {
     description: "Explora el lineup completo de Lollapalooza Chile 2026 (13-15 de Marzo). Encuentra horarios de artistas por stage, día y más.",
     images: ["/social.jpg"],
   },
+  icons: {
+    icon: "/favicon.png",
+  },
   robots: {
     index: true,
     follow: true,

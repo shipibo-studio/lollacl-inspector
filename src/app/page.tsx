@@ -21,18 +21,45 @@ const stageColors: Record<string, { bg: string; text: string; border: string }> 
   "Kidzapalooza Stage": { bg: "#00bcd4", text: "#000000", border: "#00bcd4" },
 };
 
-const getStageColor = (stage: string) => {
-  return stageColors[stage] || { bg: "#333333", text: "#888888", border: "#333333" };
-};
+// Stage streaming links - fetched from API
+interface StreamData {
+  stage: string;
+  streamUrl: string | null;
+  embedUrl: string | null;
+  isLive: boolean;
+  currentArtist: string | null;
+  youtubeVideoId: string | null;
+}
 
-// Stage streaming links
-const stageStreamLinks: Record<string, string> = {
+// Fallback stream links (used when API fails or no live streams)
+const fallbackStreamLinks: Record<string, string> = {
   "Cenco Malls Stage": "https://www.youtube.com/watch?v=mFgT15aay24",
   "Banco de Chile Stage": "https://www.youtube.com/watch?v=bHbSQYrnAuo",
   "Alternative Stage": "https://www.youtube.com/watch?v=IyUXoLEiaDw",
   "Perry's Stage": "https://www.youtube.com/watch?v=CDwu-EPFLwA",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
+};
+
+// Helper to get stream URL with fallback
+const getStreamUrl = (stage: string, streamData: StreamData[]): string | null => {
+  const stageData = streamData.find(s => s.stage === stage);
+  if (stageData?.streamUrl) {
+    console.log(`[STREAMS] Using EDGE FUNCTION link for ${stage}:`, stageData.streamUrl);
+    return stageData.streamUrl;
+  }
+  // Fallback to manual links if API doesn't return data
+  const fallbackUrl = fallbackStreamLinks[stage] || null;
+  if (fallbackUrl) {
+    console.log(`[STREAMS] Using FALLBACK link for ${stage}:`, fallbackUrl);
+  } else {
+    console.log(`[STREAMS] No stream available for ${stage}`);
+  }
+  return fallbackUrl;
+};
+
+const getStageColor = (stage: string) => {
+  return stageColors[stage] || { bg: "#333333", text: "#888888", border: "#333333" };
 };
 
 // Convert YouTube watch URL to embed URL
@@ -43,6 +70,10 @@ const getEmbedUrl = (url: string): string => {
 };
 
 export default function Home() {
+  // Stream data from API
+  const [streamData, setStreamData] = useState<StreamData[]>([]);
+  const [streamLoading, setStreamLoading] = useState(true);
+  
   // Current time state that updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
   // Track last minute to detect 00 or 30
@@ -67,6 +98,31 @@ export default function Home() {
     }, 1000); // Update every second
     return () => clearInterval(timer);
   }, [lastMinute]);
+
+  // Fetch stream data from API
+  useEffect(() => {
+    const fetchStreams = async () => {
+      try {
+        const response = await fetch('/api/streams', { 
+          next: { revalidate: 60 } // Revalidate every minute
+        });
+        const data = await response.json();
+        if (data.success && data.stages) {
+          setStreamData(data.stages);
+        }
+      } catch (error) {
+        console.error('Error fetching streams:', error);
+      } finally {
+        setStreamLoading(false);
+      }
+    };
+    
+    fetchStreams();
+    
+    // Refresh stream data every 10 minutes
+    const interval = setInterval(fetchStreams, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Get current date string (updates when currentTime changes)
   const today = useMemo(() => {
@@ -361,9 +417,9 @@ export default function Home() {
                     >
                       {show.stage}
                     </span>
-                    {isStageLive(show.day, show.stage) && stageStreamLinks[show.stage] && !hasEnded(show.day, show.time, show.endTime) && (
+                    {isStageLive(show.day, show.stage) && getStreamUrl(show.stage, streamData) && !hasEnded(show.day, show.time, show.endTime) && (
                         <button
-                          onClick={() => setVideoModal({ stage: show.stage, url: stageStreamLinks[show.stage] })}
+                          onClick={() => setVideoModal({ stage: show.stage, url: getStreamUrl(show.stage, streamData) || '' })}
                           className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white hover:bg-[#cc0000] transition-colors"
                           title="Ver transmision en vivo"
                         >
