@@ -64,6 +64,9 @@ export default function Home() {
     return todayDay ? todayDay.key : "friday";
   });
 
+  // Modal state for YouTube video
+  const [videoModal, setVideoModal] = useState<{ stage: string; url: string } | null>(null);
+
   // Update selected day when the page loads or date changes
   useEffect(() => {
     const todayDay = days.find((d) => d.date === today);
@@ -147,12 +150,29 @@ export default function Home() {
   }, [sortedShows, selectedDay, today]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-sans">
+    <div className="min-h-screen text-[#f5f5f5] font-sans">
       {/* Header */}
       <header className="w-full py-8 px-4 relative">
-        {/* Clock */}
-        <div className="fixed top-4 right-4 px-3 py-1 bg-black/50 rounded text-default font-mono text-white">
-          {currentTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+        {/* Clock and Search Icon */}
+        <div className="fixed top-4 right-4 flex items-center gap-3">
+          <button
+            onClick={() => {
+              const searchInput = document.getElementById('search-input');
+              if (searchInput) {
+                searchInput.focus();
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }}
+            className="p-2 bg-black/50 rounded text-white hover:bg-black/70 transition-colors"
+            title="Buscar artista"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+          <div className="px-3 py-1 bg-black/50 rounded text-default font-mono text-white">
+            {currentTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </div>
         </div>
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-display mb-4 tracking-wide">
@@ -169,6 +189,7 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <div className="relative">
             <input
+              id="search-input"
               type="text"
               placeholder="Buscar artista..."
               value={searchQuery}
@@ -332,9 +353,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full px-4 py-8 mt-8 border-t border-[#1a1a1a]">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm text-[#666666] leading-relaxed">
-            No hay copyright. No estamos afiliados al evento. Toda la informacion
-            es libre. No nos hacemos cargo de nada.
+          <p className="text-xs text-[#999999] leading-relaxed">
+            No hay copyright. No hay afiliación alguna al evento. Toda la informacion
+            es libre. No nos hacemos cargo de nada. Si el streaming no funciona, no es mi problema. Si los horarios cambian, trataré de tenerlo actualizado, pero no prometo nada.
           </p>
           <p className="text-lg text-[#ff3d00] mt-4 font-display">
             Disfruten de la vida y la musica
