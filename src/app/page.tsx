@@ -199,7 +199,7 @@ export default function Home() {
       {/* Header */}
       <header className="w-full py-8 px-4 relative">
         {/* Clock and Search Icon */}
-        <div className="fixed top-4 right-4 flex items-center gap-3">
+        <div className="fixed top-6 right-4 flex items-center gap-3">
           <button
             onClick={() => {
               const searchInput = document.getElementById('search-input');
