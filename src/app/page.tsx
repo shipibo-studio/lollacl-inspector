@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { artists } from "@/data/artists";
 
 type DayKey = "friday" | "saturday" | "sunday";
@@ -36,20 +36,21 @@ const stageStreamLinks: Record<string, string> = {
 };
 
 export default function Home() {
-  const today = useMemo(() => {
-    const now = new Date();
-    return now.toISOString().split("T")[0];
-  }, []);
-
-  // Current time state that updates every minute
+  // Current time state that updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+    }, 1000); // Update every second
     return () => clearInterval(timer);
   }, []);
+
+  // Get current date string (updates when currentTime changes)
+  const today = useMemo(() => {
+    const now = new Date();
+    return now.toISOString().split("T")[0];
+  }, [currentTime]);
 
   // Get initial selected day based on today's date
   const getInitialDay = (): DayKey => {
@@ -58,7 +59,21 @@ export default function Home() {
   };
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDay, setSelectedDay] = useState<DayKey>(getInitialDay);
+  const [selectedDay, setSelectedDay] = useState<DayKey>(() => {
+    const todayDay = days.find((d) => d.date === today);
+    return todayDay ? todayDay.key : "friday";
+  });
+
+  // Update selected day when the page loads or date changes
+  useEffect(() => {
+    const todayDay = days.find((d) => d.date === today);
+    if (todayDay) {
+      setSelectedDay(todayDay.key);
+    }
+  }, [today]);
+
+  // Scroll to first live artist on page load
+  const artistRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   // Check if an artist is currently performing (within start time to end time)
   const isLive = (day: string, time: string, endTime: string): boolean => {
@@ -102,7 +117,7 @@ export default function Home() {
   }, [searchQuery, selectedDay]);
 
   const artistList = useMemo(() => {
-    return artists.map((artist) => artist.name);
+    return [...new Set(artists.map((artist) => artist.name))];
   }, []);
 
   const sortedShows = useMemo(() => {
@@ -113,16 +128,38 @@ export default function Home() {
     });
   }, [filteredArtists]);
 
+  // Scroll to first live artist on page load
+  useEffect(() => {
+    // Find the first live artist for the current day
+    const liveArtist = sortedShows.find(show => 
+      isLive(show.day, show.time, show.endTime)
+    );
+    
+    if (liveArtist) {
+      const element = document.getElementById(`artist-${liveArtist.id}`);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [sortedShows, selectedDay, today]);
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-sans">
       {/* Header */}
-      <header className="w-full py-8 px-4">
+      <header className="w-full py-8 px-4 relative">
+        {/* Clock */}
+        <div className="fixed top-4 right-4 px-3 py-1 bg-black/50 rounded text-default font-mono text-white">
+          {currentTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+        </div>
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-display text-[#ff3d00] mb-4 tracking-wide">
+          <h1 className="text-4xl md:text-6xl font-display mb-4 tracking-wide">
             LollaCL Inspector
           </h1>
-          <p className="text-xl md:text-2xl text-[#888888] font-sans">
-            Programacion Oficial - Lollapalooza Santiago 2026
+          <p className="text-xl text-[#888888] font-sans">
+            Programación Lollapalooza Santiago 2026
           </p>
         </div>
       </header>
@@ -135,8 +172,16 @@ export default function Home() {
               type="text"
               placeholder="Buscar artista..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-6 py-4 text-lg bg-[#1a1a1a] border-2 border-[#333333] rounded-xl text-[#f5f5f5] placeholder-[#666666] focus:outline-none focus:border-[#ff3d00] transition-colors"
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchQuery(value);
+                // Check if selected artist exists and switch to their day
+                const artist = artists.find(a => a.name === value);
+                if (artist) {
+                  setSelectedDay(artist.day);
+                }
+              }}
+              className="w-full px-6 py-4 pr-12 text-lg bg-[#1a1a1a] border-2 border-[#333333] rounded-xl text-[#f5f5f5] placeholder-[#666666] focus:outline-none focus:border-[#ff3d00] transition-colors"
               list="artists-list"
             />
             <datalist id="artists-list">
@@ -144,6 +189,18 @@ export default function Home() {
                 <option key={name} value={name} />
               ))}
             </datalist>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#666666] hover:text-white"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            {!searchQuery && (
             <svg
               className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#666666]"
               fill="none"
@@ -157,6 +214,7 @@ export default function Home() {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
+            )}
           </div>
         </div>
       </section>
@@ -189,7 +247,9 @@ export default function Home() {
             <div className="grid gap-4 md:grid-cols-2">
               {sortedShows.map((show) => (
                 <div
+                  id={`artist-${show.id}`}
                   key={show.id}
+                  ref={(el) => { artistRefs.current[show.id] = el; }}
                   className={`bg-[#1a1a1a] border rounded-xl p-6 transition-colors ${
                     isLive(show.day, show.time, show.endTime)
                       ? "border-[#ff3d00] shadow-lg shadow-[#ff3d00]/30"

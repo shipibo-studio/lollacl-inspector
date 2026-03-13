@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎸 LollaCL Inspector
 
-## Getting Started
+¡Bienvenido a **LollaCL Inspector**! Una aplicación web no oficial para ver la programación completa del **Lollapalooza Chile 2026**, incluyendo links al streaming en Youtube.
 
-First, run the development server:
+## 🎯 ¿Qué es esto?
+
+LollaCL Inspector te permite:
+
+- 📅 Ver la programación por día (viernes, sábado y domingo)
+- 🔍 Buscar artistas específicos
+- 🎬 Ver los enlaces en vivo de cada escenario
+- ⏰ Ver qué artistas están tocando ahora mismo
+
+
+**Escenarios disponibles:**
+- Cenco Malls Stage
+- Banco de Chile Stage
+- Alternative Stage
+- Perry's Stage
+- Lotus Stage
+- Kidzapalooza Stage
+
+
+## 🚀 ¿Cómo ver el proyecto?
+
+Debes tener **Node.js** instalado:
 
 ```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Iniciar el servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Luego abre http://localhost:3000 en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📋 Requisitos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18 o superior
+- npm (incluido con Node.js)
 
-## Learn More
+## ⚠️ Aviso importante
 
-To learn more about Next.js, take a look at the following resources:
+Este proyecto **no está afiliado** a Lollapalooza ni a sus organizadores. Es un proyecto para la comunidad.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📜 Licencia
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+MIT - Haz lo que quieras con el código 😄
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+¿Dudas o sugerencias? ¡Abre un issue en GitHub o contribuye directamente!
