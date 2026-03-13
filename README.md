@@ -1,5 +1,7 @@
 # 🎸 LollaCL Inspector
 
+**🌐 Demo en vivo:** https://lollacl-inspector.vercel.app/
+
 ¡Bienvenido a **LollaCL Inspector**! Una aplicación web no oficial para ver la programación completa del **Lollapalooza Chile 2026**, incluyendo links al streaming en Youtube.
 
 ## 🎯 ¿Qué es esto?

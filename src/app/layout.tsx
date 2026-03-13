@@ -15,8 +15,49 @@ const anton = Anton({
 });
 
 export const metadata: Metadata = {
-  title: "LollaCL Inspector",
-  description: "Buscador de shows Lollapalooza Santiago 2026",
+  title: {
+    default: "LollaCL Inspector",
+    template: "%s | Lollapalooza Chile 2026",
+  },
+  description: "Explora el lineup completo de Lollapalooza Chile 2026 (13-15 de Marzo). Encuentra horarios de artistas por stage, día y más.",
+  keywords: ["Lollapalooza", "Chile", "2026", "festival", "música", " lineup", "artistas", "schedules", "stages"],
+  authors: [{ name: "LollaCL" }],
+  creator: "LollaCL",
+  publisher: "LollaCL",
+  metadataBase: new URL("https://lollacl-inspector.vercel.app/"),
+  openGraph: {
+    type: "website",
+    locale: "es_CL",
+    url: "https://lollacl-inspector.vercel.app/",
+    siteName: "LollaCL Inspector",
+    title: "LollaCL Inspector - Lollapalooza Chile 2026",
+    description: "Explora el lineup completo de Lollapalooza Chile 2026 (13-15 de Marzo). Encuentra horarios de artistas por stage, día y más.",
+    images: [
+      {
+        url: "/social.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Lollapalooza Chile 2026",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LollaCL Inspector - Lollapalooza Chile 2026",
+    description: "Explora el lineup completo de Lollapalooza Chile 2026 (13-15 de Marzo). Encuentra horarios de artistas por stage, día y más.",
+    images: ["/social.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
