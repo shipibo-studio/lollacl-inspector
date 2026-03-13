@@ -45,19 +45,34 @@ const getEmbedUrl = (url: string): string => {
 export default function Home() {
   // Current time state that updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
+  // Track last minute to detect 00 or 30
+  const [lastMinute, setLastMinute] = useState<number | null>(null);
+  // Trigger refresh at minute 00 or 30
+  const [minuteTrigger, setMinuteTrigger] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
+      const now = new Date();
+      const minute = now.getMinutes();
+      
+      // Check if minute is 00 or 30 and we haven't triggered yet
+      if ((minute === 0 || minute === 30) && minute !== lastMinute) {
+        setLastMinute(minute);
+        setMinuteTrigger(prev => prev + 1);
+      } else if (minute !== lastMinute && lastMinute !== null) {
+        setLastMinute(minute);
+      }
+      
+      setCurrentTime(now);
     }, 1000); // Update every second
     return () => clearInterval(timer);
-  }, []);
+  }, [lastMinute]);
 
   // Get current date string (updates when currentTime changes)
   const today = useMemo(() => {
     const now = new Date();
     return now.toISOString().split("T")[0];
-  }, [currentTime]);
+  }, [currentTime, minuteTrigger]);
 
   // Get initial selected day based on today's date
   const getInitialDay = (): DayKey => {
@@ -391,8 +406,11 @@ export default function Home() {
             No hay copyright. No hay afiliación alguna al evento. Toda la informacion
             es libre. No nos hacemos cargo de nada. Si el streaming no funciona, no es mi problema. Si los horarios cambian, trataré de tenerlo actualizado, pero no prometo nada.
           </p>
-          <p className="text-lg text-[#ff3d00] mt-4 font-display">
-            Disfruten de la vida y la musica
+          <p className="text-xs text-[#999999] leading-relaxed mt-4">
+            Si a pesar de todo quieren contactarme, pueden hacerlo al mail <a href="mailto:lollacl2026.ebii8h@bumpmail.io" class="text-[#cccccc] underline">lollacl2026.ebii8h@bumpmail.io</a>.
+          </p>
+          <p className="text-sm text-[#ff3d00] mt-4 leading-tight">
+            Disfruten de la vida y la musica y no se olviden de salir a bailar o hacer un mosh aunque sea un rato, aunque sea con amigos, aunque sea con desconocidos, aunque sea solos.
           </p>
         </div>
       </footer>
