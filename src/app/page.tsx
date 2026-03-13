@@ -35,6 +35,13 @@ const stageStreamLinks: Record<string, string> = {
   "Kidzapalooza Stage": "",
 };
 
+// Convert YouTube watch URL to embed URL
+const getEmbedUrl = (url: string): string => {
+  if (!url) return "";
+  const videoId = url.split('v=')[1]?.split('&')[0];
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+};
+
 export default function Home() {
   // Current time state that updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -301,17 +308,15 @@ export default function Home() {
                       {show.stage}
                     </span>
                     {isStageLive(show.day, show.stage) && stageStreamLinks[show.stage] && (
-                        <a
-                          href={stageStreamLinks[show.stage]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white"
+                        <button
+                          onClick={() => setVideoModal({ stage: show.stage, url: stageStreamLinks[show.stage] })}
+                          className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white hover:bg-[#cc0000] transition-colors"
                           title="Ver transmision en vivo"
                         >
                           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                           </svg>
-                        </a>
+                        </button>
                       )}
                   </div>
                 </div>
@@ -349,6 +354,35 @@ export default function Home() {
           </a>
         </div>
       </section>
+
+      {/* Video Modal */}
+      {videoModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={() => setVideoModal(null)}
+        >
+          <div 
+            className="relative w-[90vw] h-[90vh] max-w-6xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setVideoModal(null)}
+              className="absolute -top-10 right-0 text-white hover:text-[#ff3d00] transition-colors"
+            >
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <iframe
+              src={getEmbedUrl(videoModal.url)}
+              title={videoModal.stage}
+              className="w-full h-full rounded-lg"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="w-full px-4 py-8 mt-8 border-t border-[#1a1a1a]">
