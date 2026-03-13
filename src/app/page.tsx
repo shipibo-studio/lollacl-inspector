@@ -42,7 +42,13 @@ const fallbackStreamLinks: Record<string, string> = {
 };
 
 // Helper to get stream URL with fallback
-const getStreamUrl = (stage: string, streamData: StreamData[]): string | null => {
+const getStreamUrl = (stage: string, streamData: StreamData[], isMounted: boolean): string | null => {
+  // Use fallback links during SSR or before mounted
+  if (!isMounted) {
+    const fallbackUrl = fallbackStreamLinks[stage] || null;
+    return fallbackUrl;
+  }
+  
   const stageData = streamData.find(s => s.stage === stage);
   if (stageData?.streamUrl) {
     console.log(`[STREAMS] Using EDGE FUNCTION link for ${stage}:`, stageData.streamUrl);
@@ -73,6 +79,7 @@ export default function Home() {
   // Stream data from API
   const [streamData, setStreamData] = useState<StreamData[]>([]);
   const [streamLoading, setStreamLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   
   // Current time state that updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -101,6 +108,8 @@ export default function Home() {
 
   // Fetch stream data from API
   useEffect(() => {
+    setIsMounted(true);
+    
     const fetchStreams = async () => {
       try {
         const response = await fetch('/api/streams', { 
@@ -417,9 +426,9 @@ export default function Home() {
                     >
                       {show.stage}
                     </span>
-                    {isStageLive(show.day, show.stage) && getStreamUrl(show.stage, streamData) && !hasEnded(show.day, show.time, show.endTime) && (
+                    {isStageLive(show.day, show.stage) && getStreamUrl(show.stage, streamData, isMounted) && !hasEnded(show.day, show.time, show.endTime) && (
                         <button
-                          onClick={() => setVideoModal({ stage: show.stage, url: getStreamUrl(show.stage, streamData) || '' })}
+                          onClick={() => setVideoModal({ stage: show.stage, url: getStreamUrl(show.stage, streamData, isMounted) || '' })}
                           className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white hover:bg-[#cc0000] transition-colors"
                           title="Ver transmision en vivo"
                         >
