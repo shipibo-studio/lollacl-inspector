@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { artists } from "@/data/artists";
 
@@ -37,6 +38,16 @@ const fallbackStreamLinks: Record<string, string> = {
   "Banco de Chile Stage": "https://www.youtube.com/watch?v=kTfqXQsmFUw",
   "Alternative Stage": "https://www.youtube.com/watch?v=IyUXoLEiaDw",
   "Perry's Stage": "https://www.youtube.com/watch?v=CDwu-EPFLwA",
+  "Lotus Stage": "",
+  "Kidzapalooza Stage": "",
+};
+
+// Secondary stream links (manual, won't be modified by API)
+const secondaryStreamLinks: Record<string, string> = {
+  "Cenco Malls Stage": "https://lollapaloozacl.com/streaming/cencomalls",
+  "Banco de Chile Stage": "https://lollapaloozacl.com/streaming/bch",
+  "Alternative Stage": "https://lollapaloozacl.com/streaming/alternative",
+  "Perry's Stage": "https://lollapaloozacl.com/streaming/perrys",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
 };
@@ -436,17 +447,30 @@ export default function Home() {
                     >
                       {show.stage}
                     </span>
+                    <span>
                     {isStageLive(show.day, show.stage) && getStreamUrl(show.stage, streamData, isMounted) && !hasEnded(show.day, show.time, show.endTime) && (
                         <button
                           onClick={() => setVideoModal({ stage: show.stage, url: getStreamUrl(show.stage, streamData, isMounted) || '' })}
                           className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#ff0000] text-white hover:bg-[#cc0000] transition-colors"
-                          title="Ver transmision en vivo"
+                          title="Ver en Youtube"
                         >
                           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                           </svg>
                         </button>
                       )}
+                      {isStageLive(show.day, show.stage) && secondaryStreamLinks[show.stage] && !hasEnded(show.day, show.time, show.endTime) && (
+                        <a
+                          href={secondaryStreamLinks[show.stage]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 inline-flex items-center px-2 py-0.5 rounded bg-[#000000] text-white hover:bg-[#333333] transition-colors"
+                          title="Ver streaming oficial"
+                        >
+                          <img src="/favicon.png" alt="Stream" className="w-6 h-6" />
+                        </a>
+                      )}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -479,6 +503,27 @@ export default function Home() {
             </svg>
             <span className="text-lg font-sans text-[#f5f5f5] group-hover:text-white">
               Canal Oficial - Lollapalooza Chile
+            </span>
+          </a>
+        </div>
+          {/* Sitio Oficial Button */}
+        <div className="max-w-4xl mx-auto mt-4 text-center">
+          <a
+            href="https://lollapaloozacl.com/streaming/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#1a1a1a] border-2 border-[#333333] rounded-xl hover:border-[#ff0000] transition-colors group"
+          >
+            <Image
+              src="/favicon.png"
+              alt="Sitio Oficial"
+              width={32}
+              height={32}
+              className="w-8 h-8 group-hover:scale-110 transition-transform"
+              priority
+            />
+            <span className="text-lg font-sans text-[#f5f5f5] group-hover:text-white">
+              Sitio Oficial - Lollapalooza Chile
             </span>
           </a>
         </div>
