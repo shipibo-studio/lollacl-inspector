@@ -16,13 +16,13 @@ export const artists: Artist[] = [
   { id: 3, name: "Ruel", day: "friday", stage: "Cenco Malls Stage", time: "18:00", endTime: "19:00" },
   { id: 4, name: "Doechii", day: "friday", stage: "Cenco Malls Stage", time: "20:00", endTime: "21:00" },
   { id: 5, name: "Sabrina Carpenter", day: "friday", stage: "Cenco Malls Stage", time: "22:15", endTime: "23:35" },
-  { id: 6, name: "Young Cister", day: "friday", stage: "Cenco Malls Stage", time: "23:35", endTime: "00:50" },
   // Banco de Chile Stage
   { id: 7, name: "Dracma", day: "friday", stage: "Banco de Chile Stage", time: "13:45", endTime: "14:30" },
   { id: 8, name: "Bad Nerves", day: "friday", stage: "Banco de Chile Stage", time: "15:15", endTime: "16:00" },
   { id: 9, name: "Airbag", day: "friday", stage: "Banco de Chile Stage", time: "17:00", endTime: "18:00" },
   { id: 10, name: "Interpol", day: "friday", stage: "Banco de Chile Stage", time: "19:00", endTime: "20:00" },
   { id: 11, name: "Deftones", day: "friday", stage: "Banco de Chile Stage", time: "21:00", endTime: "22:15" },
+  { id: 6, name: "Young Cister", day: "friday", stage: "Banco de Chile Stage", time: "23:35", endTime: "00:50" },
   // Alternative Stage
   { id: 12, name: "Cleaver", day: "friday", stage: "Alternative Stage", time: "14:15", endTime: "15:00" },
   { id: 13, name: "LANY", day: "friday", stage: "Alternative Stage", time: "16:00", endTime: "17:00" },
