@@ -34,7 +34,7 @@ interface StreamData {
 // Fallback stream links (used when API fails or no live streams)
 const fallbackStreamLinks: Record<string, string> = {
   "Cenco Malls Stage": "https://www.youtube.com/watch?v=mFgT15aay24",
-  "Banco de Chile Stage": "https://www.youtube.com/watch?v=bHbSQYrnAuo",
+  "Banco de Chile Stage": "https://www.youtube.com/watch?v=kTfqXQsmFUw",
   "Alternative Stage": "https://www.youtube.com/watch?v=IyUXoLEiaDw",
   "Perry's Stage": "https://www.youtube.com/watch?v=CDwu-EPFLwA",
   "Lotus Stage": "",
@@ -42,26 +42,23 @@ const fallbackStreamLinks: Record<string, string> = {
 };
 
 // Helper to get stream URL with fallback
+// Priority: 1) API real data, 2) Hardcoded fallback
 const getStreamUrl = (stage: string, streamData: StreamData[], isMounted: boolean): string | null => {
-  // Use fallback links during SSR or before mounted
+  // Use hardcoded fallback during SSR
   if (!isMounted) {
-    const fallbackUrl = fallbackStreamLinks[stage] || null;
-    return fallbackUrl;
+    return fallbackStreamLinks[stage] || null;
   }
   
+  // After mounted, check if API returned valid data
   const stageData = streamData.find(s => s.stage === stage);
-  if (stageData?.streamUrl) {
-    console.log(`[STREAMS] Using EDGE FUNCTION link for ${stage}:`, stageData.streamUrl);
-    return stageData.streamUrl;
+  
+  // If no API data or placeholder video, use hardcoded fallback
+  if (!stageData?.streamUrl || stageData.streamUrl.includes('dQw4w9WgXcQ')) {
+    return fallbackStreamLinks[stage] || null;
   }
-  // Fallback to manual links if API doesn't return data
-  const fallbackUrl = fallbackStreamLinks[stage] || null;
-  if (fallbackUrl) {
-    console.log(`[STREAMS] Using FALLBACK link for ${stage}:`, fallbackUrl);
-  } else {
-    console.log(`[STREAMS] No stream available for ${stage}`);
-  }
-  return fallbackUrl;
+  
+  // Use API data
+  return stageData.streamUrl;
 };
 
 const getStageColor = (stage: string) => {
@@ -81,14 +78,18 @@ export default function Home() {
   const [streamLoading, setStreamLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   
-  // Current time state that updates every second
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // Current time state - initialized as null to avoid hydration mismatch
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   // Track last minute to detect 00 or 30
   const [lastMinute, setLastMinute] = useState<number | null>(null);
   // Trigger refresh at minute 00 or 30
   const [minuteTrigger, setMinuteTrigger] = useState(0);
 
+  // Update current time every second
   useEffect(() => {
+    // Initialize time on mount
+    setCurrentTime(new Date());
+    
     const timer = setInterval(() => {
       const now = new Date();
       const minute = now.getMinutes();
@@ -133,11 +134,14 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Get current date string (updates when currentTime changes)
+  // Get current date string in local timezone (updates when currentTime changes)
   const today = useMemo(() => {
-    const now = new Date();
-    return now.toISOString().split("T")[0];
-  }, [currentTime, minuteTrigger]);
+    if (!currentTime) return days[0].date; // Default to first day during SSR
+    const year = currentTime.getFullYear();
+    const month = String(currentTime.getMonth() + 1).padStart(2, '0');
+    const day = String(currentTime.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, [currentTime]);
 
   // Get initial selected day based on today's date
   const getInitialDay = (): DayKey => {
@@ -179,10 +183,13 @@ export default function Home() {
       showEndDate = new Date(showEndDate.getTime() + 24 * 60 * 60 * 1000);
     }
     
-    const now = new Date();
+    const now = currentTime || new Date();
 
-    // Check if it's the same day
-    const todayStr = now.toISOString().split("T")[0];
+    // Check if it's the same day (local timezone)
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const dateStr = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${dateStr}`;
     if (artistDay.date !== todayStr) return false;
 
     // Show is live from start time to end time
@@ -202,10 +209,13 @@ export default function Home() {
       showEndDate = new Date(showEndDate.getTime() + 24 * 60 * 60 * 1000);
     }
     
-    const now = new Date();
+    const now = currentTime || new Date();
 
-    // Check if it's the same day
-    const todayStr = now.toISOString().split("T")[0];
+    // Check if it's the same day (local timezone)
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const dateStr = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${dateStr}`;
     if (artistDay.date !== todayStr) return false;
 
     // Show has ended if current time is after end time
@@ -281,7 +291,7 @@ export default function Home() {
             </svg>
           </button>
           <div className="px-3 py-1 bg-black/50 rounded text-default font-mono text-white">
-            {currentTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            {currentTime ? currentTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '--:--:--'}
           </div>
         </div>
         <div className="max-w-4xl mx-auto text-center">
