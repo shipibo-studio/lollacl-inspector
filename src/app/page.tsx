@@ -36,7 +36,7 @@ interface StreamData {
 const fallbackStreamLinks: Record<string, string> = {
   "Cenco Malls Stage": "https://www.youtube.com/watch?v=mFgT15aay24",
   "Banco de Chile Stage": "https://www.youtube.com/watch?v=kTfqXQsmFUw",
-  "Alternative Stage": "https://www.youtube.com/watch?v=IyUXoLEiaDw",
+  "Alternative Stage": "https://www.youtube.com/watch?v=Val5qU_MDAI",
   "Perry's Stage": "https://www.youtube.com/watch?v=CDwu-EPFLwA",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
