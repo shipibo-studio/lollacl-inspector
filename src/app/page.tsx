@@ -34,10 +34,10 @@ interface StreamData {
 
 // Fallback stream links (used when API fails or no live streams)
 const fallbackStreamLinks: Record<string, string> = {
-  "Cenco Malls Stage": "https://www.youtube.com/watch?v=nrc-e9LhttY",
-  "Banco de Chile Stage": "https://www.youtube.com/watch?v=kA7cuXIBE1Y",
-  "Alternative Stage": "https://www.youtube.com/watch?v=QqOQUc6MU0E",
-  "Perry's Stage": "https://www.youtube.com/watch?v=J7Xw4SrHPx8",
+  "Cenco Malls Stage": "https://www.youtube.com/watch?v=8kGfU8h0ap4",
+  "Banco de Chile Stage": "https://www.youtube.com/watch?v=zKSHtT2sLic",
+  "Alternative Stage": "https://www.youtube.com/watch?v=AA91TIoZxP4",
+  "Perry's Stage": "https://www.youtube.com/watch?v=bbcUHSQx3X8",
   "Lotus Stage": "",
   "Kidzapalooza Stage": "",
 };
